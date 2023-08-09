@@ -42,7 +42,8 @@ var slideshowCmd = &cobra.Command{
 
 		duration, _ := cmd.Flags().GetInt("duration")
 		repeat, _ := cmd.Flags().GetBool("repeat")
-		if err := app.Slideshow(args, duration, repeat); err != nil {
+		random, _ := cmd.Flags().GetBool("repeat")
+		if err := app.Slideshow(args, duration, repeat, random); err != nil {
 			exit("unable to play slideshow on cast application: %v", err)
 		}
 	},
@@ -52,4 +53,5 @@ func init() {
 	rootCmd.AddCommand(slideshowCmd)
 	slideshowCmd.Flags().Int("duration", 10, "duration of each image on screen")
 	slideshowCmd.Flags().Bool("repeat", true, "should the slideshow repeat")
+	slideshowCmd.Flags().Bool("random", false, "randomize the image order")
 }

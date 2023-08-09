@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"math/rand"
 	"net"
 	"net/http"
 	"os"
@@ -81,7 +82,7 @@ type App interface {
 	Previous() error
 	SetVolume(value float32) error
 	SetMuted(value bool) error
-	Slideshow(filenames []string, duration int, repeat bool) error
+	Slideshow(filenames []string, duration int, repeat bool, random bool) error
 	AddMessageFunc(f CastMessageFunc)
 	PlayedItems() map[string]PlayedItem
 	PlayableMediaType(filename string) bool
@@ -882,7 +883,7 @@ func (a *Application) ensureIsAppID(appID string) error {
 	return nil
 }
 
-func (a *Application) Slideshow(filenames []string, duration int, repeat bool) error {
+func (a *Application) Slideshow(filenames []string, duration int, repeat bool, random bool) error {
 	mediaItems, err := a.loadAndServeFiles(filenames, "", false)
 	if err != nil {
 		return errors.Wrap(err, "unable to load and serve files")
@@ -903,6 +904,14 @@ func (a *Application) Slideshow(filenames []string, duration int, repeat bool) e
 				ContentType: mi.contentType,
 			},
 		}
+	}
+
+	if random {
+		rand.Shuffle(len(items), func(i, j int) {
+			temp := items[i]
+			items[i] = items[j]
+			items[j] = temp
+		})
 	}
 
 	var repeatMode string
